@@ -6,7 +6,7 @@ compatibility_date = "2024-01-01"
 [[d1_databases]]
 binding = "DB"
 database_name = "mail-dashboard-db"
-database_id = "YOUR_DATABASE_ID"
+database_id = "efaf5558-c34d-418a-ac11-842d56bc197f"
 
 # Environment variables
 [vars]

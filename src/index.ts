@@ -1381,29 +1381,63 @@ function getWebInterface(): string {
                     return;
                 }
 
-                container.innerHTML = emailsData.emails.map(email => {
-                    const date = new Date(email.received_at * 1000);
-                    const preview = (email.text_body || '').substring(0, 120);
-                    const isToday = email.received_at >= todayTimestamp;
-                    const timeStr = isToday 
-                        ? date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
-                        : date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                    const unreadClass = email.is_read === 0 ? 'unread' : '';
+                // Group emails by recipient address
+                const groupedEmails = {};
+                emailsData.emails.forEach(email => {
+                    if (!groupedEmails[email.to_address]) {
+                        groupedEmails[email.to_address] = [];
+                    }
+                    groupedEmails[email.to_address].push(email);
+                });
 
-                    return \`
-                        <div class="email-item \${unreadClass}" onclick="viewEmail(\${email.id})">
-                            <div class="email-header">
-                                <div class="email-from-group">
-                                    <div class="email-from">\${email.from_address}</div>
-                                    <div class="email-to-badge">📬 \${email.to_address}</div>
+                // Render grouped emails
+                let html = '';
+                Object.keys(groupedEmails).sort().forEach(recipient => {
+                    const emails = groupedEmails[recipient];
+                    const unreadInGroup = emails.filter(e => e.is_read === 0).length;
+                    
+                    html += \`
+                        <div style="margin-bottom: 32px;">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding: 12px 16px; background: rgba(102, 126, 234, 0.1); border-left: 3px solid #667eea; border-radius: 8px;">
+                                <div style="font-size: 18px;">📬</div>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600; color: #667eea; font-size: 15px;">\${recipient}</div>
+                                    <div style="font-size: 13px; color: #888; margin-top: 2px;">\${emails.length} email\${emails.length > 1 ? 's' : ''}\${unreadInGroup > 0 ? \` · \${unreadInGroup} unread\` : ''}</div>
                                 </div>
-                                <div class="email-date">\${timeStr}</div>
                             </div>
-                            <div class="email-subject">\${email.subject || '(No Subject)'}</div>
-                            <div class="email-preview">\${preview}\${preview.length >= 120 ? '...' : ''}</div>
+                            <div style="display: flex; flex-direction: column; gap: 12px;">
+                    \`;
+                    
+                    emails.forEach(email => {
+                        const date = new Date(email.received_at * 1000);
+                        const preview = (email.text_body || '').substring(0, 120);
+                        const isToday = email.received_at >= todayTimestamp;
+                        const timeStr = isToday 
+                            ? date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+                            : date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                        const unreadClass = email.is_read === 0 ? 'unread' : '';
+
+                        html += \`
+                            <div class="email-item \${unreadClass}" onclick="viewEmail(\${email.id})" style="margin-left: 20px;">
+                                <div class="email-header">
+                                    <div class="email-from-group">
+                                        <div class="email-from">\${email.from_address}</div>
+                                    </div>
+                                    <div class="email-date">\${timeStr}</div>
+                                </div>
+                                <div class="email-subject">\${email.subject || '(No Subject)'}</div>
+                                <div class="email-preview">\${preview}\${preview.length >= 120 ? '...' : ''}</div>
+                            </div>
+                        \`;
+                    });
+                    
+                    html += \`
+                            </div>
                         </div>
                     \`;
-                }).join('');
+                });
+
+                container.innerHTML = html;
 
             } catch (error) {
                 document.getElementById('emailListContainer').innerHTML = 
