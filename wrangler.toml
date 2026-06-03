@@ -1,0 +1,14 @@
+name = "justblurry-mail"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+# D1 Database binding
+[[d1_databases]]
+binding = "DB"
+database_name = "justblurry-mail-db"
+database_id = "fd3c2937-b48c-4e37-aa18-c898786d1a0c"
+
+# Environment variables
+[vars]
+APP_NAME = "Justblurry Mail"
+ADMIN_EMAIL = "admin@justblurry.com"
