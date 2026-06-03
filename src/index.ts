@@ -112,10 +112,10 @@ async function handleLogin(request: Request, env: Env, corsHeaders: Record<strin
     const { email, password } = await request.json();
 
     // Validate email format
-    if (!email || !email.endsWith('@justblurry.com')) {
+    if (!email || !email.endsWith('@yourdomain.com')) {
       return new Response(JSON.stringify({
         success: false,
-        error: 'Please use a @justblurry.com email address'
+        error: 'Please use your domain email address'
       }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -274,7 +274,7 @@ async function handleWebhook(request: Request, env: Env, corsHeaders: Record<str
     }
 
     // Generate message_id if not provided
-    const messageId = emailData.message_id || `<${Date.now()}@justblurry.com>`;
+    const messageId = emailData.message_id || `<${Date.now()}@yourdomain.com>`;
     
     // Parse date or use current timestamp
     const receivedAt = emailData.date 
@@ -1081,7 +1081,7 @@ function getWebInterface(): string {
             <form id="loginForm" onsubmit="handleLogin(event)">
                 <div class="form-group">
                     <label>Email Address</label>
-                    <input type="email" id="email" placeholder="you@justblurry.com" required>
+                    <input type="email" id="email" placeholder="you@yourdomain.com" required>
                 </div>
                 <div class="form-group">
                     <label>Password</label>
@@ -1121,7 +1121,7 @@ function getWebInterface(): string {
                 <div class="user-info">
                     <div class="user-avatar" id="userAvatar">A</div>
                     <div class="user-details">
-                        <div class="user-email" id="userEmail">admin@justblurry.com</div>
+                        <div class="user-email" id="userEmail">admin@yourdomain.com</div>
                         <div class="change-password-btn" onclick="openChangePasswordModal()">Change Password</div>
                         <div class="logout-btn" onclick="handleLogout()">Logout</div>
                     </div>
@@ -1375,7 +1375,7 @@ function getWebInterface(): string {
                         <div class="empty-state">
                             <svg fill="currentColor" viewBox="0 0 20 20"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path></svg>
                             <h3>No emails yet</h3>
-                            <p>Send an email to @justblurry.com to get started</p>
+                            <p>Send an email to @yourdomain.com to get started</p>
                         </div>
                     \`;
                     return;

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Justblurry Mail - Quick Access Commands
+# Mail Dashboard - Quick Access Commands
 
 echo "════════════════════════════════════════════"
 echo "📧 JUSTBLURRY MAIL - QUICK ACCESS"
@@ -44,7 +44,7 @@ echo "# Get email count"
 echo "curl https://justblurry-mail.wirasaputra3005.workers.dev/api/emails/count"
 echo ""
 echo "# Send test email"
-echo "echo 'Test' | mail -s 'Test' test@justblurry.com"
+echo "echo 'Test' | mail -s 'Test' test@yourdomain.com"
 echo ""
 echo "# Check forwarder logs"
 echo "ssh root@64.226.100.60 'tail -f /var/log/cloudmail-forwarder.log'"

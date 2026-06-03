@@ -1,6 +1,6 @@
-# 📧 Justblurry Mail - Email Management System
+# 📧 Mail Dashboard - Email Management System
 
-Modern email management system built with Cloudflare Workers + D1 Database for @justblurry.com domain.
+Modern email management system built with Cloudflare Workers + D1 Database for @yourdomain.com domain.
 
 ![Status](https://img.shields.io/badge/status-production-success)
 ![Version](https://img.shields.io/badge/version-1.0.0-blue)
@@ -45,7 +45,7 @@ Web Dashboard
 ### Prerequisites
 
 - Cloudflare account with Workers enabled
-- Domain configured (@justblurry.com)
+- Domain configured (@yourdomain.com)
 - Mail server with Postfix installed
 - Node.js 18+ (for development)
 
@@ -68,7 +68,7 @@ wrangler login
 #### 3. Create D1 Database
 
 ```bash
-wrangler d1 create justblurry-mail-db
+wrangler d1 create mail-dashboard-db
 ```
 
 Copy the `database_id` from output and update `wrangler.toml`:
@@ -76,21 +76,21 @@ Copy the `database_id` from output and update `wrangler.toml`:
 ```toml
 [[d1_databases]]
 binding = "DB"
-database_name = "justblurry-mail-db"
+database_name = "mail-dashboard-db"
 database_id = "YOUR_DATABASE_ID_HERE"
 ```
 
 #### 4. Initialize Database Schema
 
 ```bash
-wrangler d1 execute justblurry-mail-db --remote --file=./schema.sql
+wrangler d1 execute mail-dashboard-db --remote --file=./schema.sql
 ```
 
 #### 5. Set Default Admin Password
 
 ```bash
-wrangler d1 execute justblurry-mail-db --remote \
-  --command "UPDATE users SET password_hash = 'sha256:wanz2026' WHERE email = 'admin@justblurry.com'"
+wrangler d1 execute mail-dashboard-db --remote \
+  --command "UPDATE users SET password_hash = 'sha256:wanz2026' WHERE email = 'admin@yourdomain.com'"
 ```
 
 #### 6. Deploy Worker
@@ -99,7 +99,7 @@ wrangler d1 execute justblurry-mail-db --remote \
 wrangler deploy
 ```
 
-Your app is now live at: `https://justblurry-mail.YOUR_SUBDOMAIN.workers.dev`
+Your app is now live at: `https://mail-dashboard.YOUR_SUBDOMAIN.workers.dev`
 
 ---
 
@@ -122,7 +122,7 @@ import requests
 from email.parser import Parser
 
 # Cloudflare Worker webhook URL
-CLOUDMAIL_WEBHOOK_URL = "https://justblurry-mail.YOUR_SUBDOMAIN.workers.dev/api/webhook"
+CLOUDMAIL_WEBHOOK_URL = "https://mail-dashboard.YOUR_SUBDOMAIN.workers.dev/api/webhook"
 
 def forward_to_cloudmail():
     try:
@@ -177,7 +177,7 @@ chmod +x /usr/local/bin/postfix_to_cloudmail.py
 
 ```bash
 # Add transport map
-echo "justblurry.com cloudmail:" > /etc/postfix/transport
+echo "yourdomain.com cloudmail:" > /etc/postfix/transport
 postmap /etc/postfix/transport
 
 # Configure Postfix
@@ -191,11 +191,11 @@ cloudmail unix - n n - - pipe
 EOF
 
 # Remove virtual alias if exists
-echo "# Virtual aliases disabled for Justblurry Mail" > /etc/postfix/virtual
+echo "# Virtual aliases disabled for Mail Dashboard" > /etc/postfix/virtual
 postmap /etc/postfix/virtual
 
-# Update mydestination (remove justblurry.com if present)
-postconf -e 'mydestination = $myhostname, mail.justblurry.com, localhost.com, localhost'
+# Update mydestination (remove yourdomain.com if present)
+postconf -e 'mydestination = $myhostname, mail.yourdomain.com, localhost.com, localhost'
 
 # Reload Postfix
 postfix reload
@@ -216,7 +216,7 @@ sed -i 's|print(|import logging; logging.basicConfig(filename="/var/log/cloudmai
 ### Test Email Delivery
 
 ```bash
-echo "Test email body" | mail -s "Test Subject" test@justblurry.com
+echo "Test email body" | mail -s "Test Subject" test@yourdomain.com
 tail -f /var/log/cloudmail-forwarder.log
 ```
 
@@ -224,9 +224,9 @@ tail -f /var/log/cloudmail-forwarder.log
 
 ## 🔐 Default Credentials
 
-**Web Interface:** `https://justblurry-mail.YOUR_SUBDOMAIN.workers.dev`
+**Web Interface:** `https://mail-dashboard.YOUR_SUBDOMAIN.workers.dev`
 
-- **Email:** admin@justblurry.com
+- **Email:** admin@yourdomain.com
 - **Password:** wanz2026
 
 ⚠️ **Change password immediately after first login!**
@@ -284,24 +284,24 @@ wrangler tail
 
 ```bash
 # List all emails
-wrangler d1 execute justblurry-mail-db --remote \
+wrangler d1 execute mail-dashboard-db --remote \
   --command "SELECT * FROM emails ORDER BY received_at DESC LIMIT 10"
 
 # Count emails
-wrangler d1 execute justblurry-mail-db --remote \
+wrangler d1 execute mail-dashboard-db --remote \
   --command "SELECT COUNT(*) as total FROM emails"
 
 # Mark all as read
-wrangler d1 execute justblurry-mail-db --remote \
+wrangler d1 execute mail-dashboard-db --remote \
   --command "UPDATE emails SET is_read = 1"
 
 # Delete old emails (30+ days)
-wrangler d1 execute justblurry-mail-db --remote \
+wrangler d1 execute mail-dashboard-db --remote \
   --command "DELETE FROM emails WHERE received_at < strftime('%s', 'now', '-30 days')"
 
 # Reset admin password
-wrangler d1 execute justblurry-mail-db --remote \
-  --command "UPDATE users SET password_hash = 'sha256:newpassword' WHERE email = 'admin@justblurry.com'"
+wrangler d1 execute mail-dashboard-db --remote \
+  --command "UPDATE users SET password_hash = 'sha256:newpassword' WHERE email = 'admin@yourdomain.com'"
 ```
 
 ### Deploy Updates
@@ -394,28 +394,28 @@ mail-dashboard/
 
 2. Test webhook manually:
    ```bash
-   curl -X POST https://justblurry-mail.YOUR_SUBDOMAIN.workers.dev/api/webhook \
+   curl -X POST https://mail-dashboard.YOUR_SUBDOMAIN.workers.dev/api/webhook \
      -H "Content-Type: application/json" \
-     -d '{"from":"test@example.com","to":"admin@justblurry.com","subject":"Test","text_body":"Body","date":"Mon, 3 Jun 2026 10:00:00 +0000","message_id":"<test@example.com>"}'
+     -d '{"from":"test@example.com","to":"admin@yourdomain.com","subject":"Test","text_body":"Body","date":"Mon, 3 Jun 2026 10:00:00 +0000","message_id":"<test@example.com>"}'
    ```
 
 3. Check email count:
    ```bash
-   curl https://justblurry-mail.YOUR_SUBDOMAIN.workers.dev/api/emails/count
+   curl https://mail-dashboard.YOUR_SUBDOMAIN.workers.dev/api/emails/count
    ```
 
 ### Cannot login
 
 1. Verify password in database:
    ```bash
-   wrangler d1 execute justblurry-mail-db --remote \
+   wrangler d1 execute mail-dashboard-db --remote \
      --command "SELECT email, password_hash FROM users"
    ```
 
 2. Reset password if needed:
    ```bash
-   wrangler d1 execute justblurry-mail-db --remote \
-     --command "UPDATE users SET password_hash = 'sha256:wanz2026' WHERE email = 'admin@justblurry.com'"
+   wrangler d1 execute mail-dashboard-db --remote \
+     --command "UPDATE users SET password_hash = 'sha256:wanz2026' WHERE email = 'admin@yourdomain.com'"
    ```
 
 ### Worker deployment fails

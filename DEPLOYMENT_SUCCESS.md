@@ -7,9 +7,9 @@
 
 ## 🎉 Live URLs
 
-**Web Interface:** https://justblurry-mail.wirasaputra3005.workers.dev  
-**Webhook API:** https://justblurry-mail.wirasaputra3005.workers.dev/api/webhook  
-**Email API:** https://justblurry-mail.wirasaputra3005.workers.dev/api/emails
+**Web Interface:** https://justblurry-mail.YOUR_SUBDOMAIN.workers.dev  
+**Webhook API:** https://justblurry-mail.YOUR_SUBDOMAIN.workers.dev/api/webhook  
+**Email API:** https://justblurry-mail.YOUR_SUBDOMAIN.workers.dev/api/emails
 
 ---
 
@@ -17,13 +17,13 @@
 
 **Test 1: Direct Webhook**
 ```bash
-curl -X POST https://justblurry-mail.wirasaputra3005.workers.dev/api/webhook
+curl -X POST https://justblurry-mail.YOUR_SUBDOMAIN.workers.dev/api/webhook
 Response: {"success":true,"email_id":1}
 ```
 
 **Test 2: Postfix Integration**
 ```
-Email sent: production@justblurry.com
+Email sent: production@yourdomain.com
 Log: ✓ Forwarded: Production Test Email
 Database: Email ID 2 stored successfully
 ```
@@ -37,13 +37,13 @@ Database: Email ID 2 stored successfully
 ```
 External Sender
     ↓
-user@justblurry.com
+user@yourdomain.com
     ↓
 Postfix (64.226.100.60)
     ↓
 postfix_to_cloudmail.py
     ↓
-POST https://justblurry-mail.wirasaputra3005.workers.dev/api/webhook
+POST https://justblurry-mail.YOUR_SUBDOMAIN.workers.dev/api/webhook
     ↓
 D1 Database (Cloudflare)
     ↓
@@ -73,27 +73,27 @@ Receive email from Postfix (auto-configured)
 ### GET /api/emails
 List all emails with pagination
 ```bash
-curl https://justblurry-mail.wirasaputra3005.workers.dev/api/emails
+curl https://justblurry-mail.YOUR_SUBDOMAIN.workers.dev/api/emails
 ```
 
 ### GET /api/emails/count
 Get total email count
 ```bash
-curl https://justblurry-mail.wirasaputra3005.workers.dev/api/emails/count
+curl https://justblurry-mail.YOUR_SUBDOMAIN.workers.dev/api/emails/count
 # Response: {"total":2}
 ```
 
 ### GET /api/emails/:id
 Get single email by ID
 ```bash
-curl https://justblurry-mail.wirasaputra3005.workers.dev/api/emails/1
+curl https://justblurry-mail.YOUR_SUBDOMAIN.workers.dev/api/emails/1
 ```
 
 ### GET /api/test
 Health check
 ```bash
-curl https://justblurry-mail.wirasaputra3005.workers.dev/api/test
-# Response: {"status":"ok","message":"Justblurry Mail API is running"}
+curl https://justblurry-mail.YOUR_SUBDOMAIN.workers.dev/api/test
+# Response: {"status":"ok","message":"Mail Dashboard API is running"}
 ```
 
 ---
@@ -101,12 +101,12 @@ curl https://justblurry-mail.wirasaputra3005.workers.dev/api/test
 ## 🔧 Postfix Configuration (64.226.100.60)
 
 **Forwarder Script:** `/usr/local/bin/postfix_to_cloudmail.py`  
-**Webhook URL:** https://justblurry-mail.wirasaputra3005.workers.dev/api/webhook  
+**Webhook URL:** https://justblurry-mail.YOUR_SUBDOMAIN.workers.dev/api/webhook  
 **Log File:** `/var/log/cloudmail-forwarder.log`
 
 **Transport Map:** `/etc/postfix/transport`
 ```
-justblurry.com cloudmail:
+yourdomain.com cloudmail:
 ```
 
 **Master.cf Entry:**
@@ -124,14 +124,14 @@ cloudmail  unix  -  n  n  -  -  pipe
 **Email 1:**
 - ID: 1
 - From: test@example.com
-- To: hello@justblurry.com
+- To: hello@yourdomain.com
 - Subject: Test Webhook
 - Status: Stored ✅
 
 **Email 2:**
 - ID: 2
-- From: root@justblurry.com
-- To: production@justblurry.com
+- From: root@yourdomain.com
+- To: production@yourdomain.com
 - Subject: Production Test Email
 - Status: Stored ✅
 
@@ -141,18 +141,18 @@ cloudmail  unix  -  n  n  -  -  pipe
 
 ### Send Email
 ```bash
-# From anywhere, send to @justblurry.com
-echo "Hello from email" | mail -s "Test Subject" user@justblurry.com
+# From anywhere, send to @yourdomain.com
+echo "Hello from email" | mail -s "Test Subject" user@yourdomain.com
 ```
 
 ### View Inbox (Web)
-1. Open: https://justblurry-mail.wirasaputra3005.workers.dev
+1. Open: https://justblurry-mail.YOUR_SUBDOMAIN.workers.dev
 2. See all emails in real-time
 3. Auto-refresh every 30 seconds
 
 ### View Inbox (API)
 ```bash
-curl https://justblurry-mail.wirasaputra3005.workers.dev/api/emails
+curl https://justblurry-mail.YOUR_SUBDOMAIN.workers.dev/api/emails
 ```
 
 ### Check Logs
@@ -173,7 +173,7 @@ tail -50 /var/log/cloudmail-forwarder.log
 
 Expected output:
 ```
-[2026-06-03 17:47:05] ✓ Forwarded: Production Test Email to production@justblurry.com
+[2026-06-03 17:47:05] ✓ Forwarded: Production Test Email to production@yourdomain.com
 ```
 
 ### Database Query (via Wrangler)
@@ -184,7 +184,7 @@ wrangler d1 execute justblurry-mail-db --remote --command "SELECT COUNT(*) FROM 
 
 ### API Health Check
 ```bash
-curl https://justblurry-mail.wirasaputra3005.workers.dev/api/test
+curl https://justblurry-mail.YOUR_SUBDOMAIN.workers.dev/api/test
 ```
 
 ---
@@ -192,14 +192,14 @@ curl https://justblurry-mail.wirasaputra3005.workers.dev/api/test
 ## 🚀 Deployment Info
 
 **Worker Name:** justblurry-mail  
-**Cloudflare Account:** wirasaputra3005  
+**Cloudflare Account:** YOUR_SUBDOMAIN  
 **Version ID:** 7c9a88a2-017f-4ee4-9c5e-7d389eb7ff90  
 **Deploy Time:** 3.11 sec  
 
 **Bindings:**
 - DB: justblurry-mail-db (D1)
-- APP_NAME: "Justblurry Mail"
-- ADMIN_EMAIL: "admin@justblurry.com"
+- APP_NAME: "Mail Dashboard"
+- ADMIN_EMAIL: "admin@yourdomain.com"
 
 ---
 
@@ -284,9 +284,9 @@ tail -100 /var/log/mail.log | grep justblurry
 
 **Test webhook manually:**
 ```bash
-curl -X POST https://justblurry-mail.wirasaputra3005.workers.dev/api/webhook \
+curl -X POST https://justblurry-mail.YOUR_SUBDOMAIN.workers.dev/api/webhook \
   -H "Content-Type: application/json" \
-  -d '{"from":"test@ex.com","to":"user@justblurry.com","subject":"Test","text_body":"Body"}'
+  -d '{"from":"test@ex.com","to":"user@yourdomain.com","subject":"Test","text_body":"Body"}'
 ```
 
 ### Worker error?
@@ -298,7 +298,7 @@ wrangler tail justblurry-mail
 
 **Check worker status:**
 ```bash
-curl https://justblurry-mail.wirasaputra3005.workers.dev/api/test
+curl https://justblurry-mail.YOUR_SUBDOMAIN.workers.dev/api/test
 ```
 
 ---
@@ -356,5 +356,5 @@ curl https://justblurry-mail.wirasaputra3005.workers.dev/api/test
 **Built by:** Wanz  
 **Date:** 2026-06-03  
 **Status:** Production Ready ✅  
-**Email Domain:** @justblurry.com  
+**Email Domain:** @yourdomain.com  
 **Infrastructure:** Cloudflare Workers + D1 + Postfix

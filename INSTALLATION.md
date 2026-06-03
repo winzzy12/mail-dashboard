@@ -1,6 +1,6 @@
-# 🚀 Justblurry Mail - Complete Installation Guide
+# 🚀 Mail Dashboard - Complete Installation Guide
 
-Step-by-step guide to deploy Justblurry Mail from scratch.
+Step-by-step guide to deploy Mail Dashboard from scratch.
 
 ---
 
@@ -9,7 +9,7 @@ Step-by-step guide to deploy Justblurry Mail from scratch.
 ### Required
 
 - **Cloudflare Account** - Free tier is sufficient
-- **Domain** - Registered domain (@justblurry.com or your domain)
+- **Domain** - Registered domain (@yourdomain.com or your domain)
 - **Mail Server** - VPS with Postfix installed (Ubuntu/Debian)
 - **Git** - Installed locally
 - **Node.js 18+** - For Wrangler CLI
@@ -47,16 +47,16 @@ This opens browser for authentication. Login with your Cloudflare account.
 #### 3. Create D1 Database
 
 ```bash
-wrangler d1 create justblurry-mail-db
+wrangler d1 create mail-dashboard-db
 ```
 
 **Output example:**
 ```
-✅ Successfully created DB 'justblurry-mail-db'!
+✅ Successfully created DB 'mail-dashboard-db'!
 
 [[d1_databases]]
 binding = "DB"
-database_name = "justblurry-mail-db"
+database_name = "mail-dashboard-db"
 database_id = "fd3c2937-b48c-4e37-aa18-c898786d1a0c"
 ```
 
@@ -67,7 +67,7 @@ Edit `wrangler.toml` and replace `database_id`:
 ```toml
 [[d1_databases]]
 binding = "DB"
-database_name = "justblurry-mail-db"
+database_name = "mail-dashboard-db"
 database_id = "YOUR_DATABASE_ID_HERE"  # ← Replace with your database_id
 ```
 
@@ -75,12 +75,12 @@ database_id = "YOUR_DATABASE_ID_HERE"  # ← Replace with your database_id
 
 ```bash
 # Run schema to create tables
-wrangler d1 execute justblurry-mail-db --remote --file=./schema.sql
+wrangler d1 execute mail-dashboard-db --remote --file=./schema.sql
 ```
 
 **Expected output:**
 ```
-🌀 Executing on remote database justblurry-mail-db:
+🌀 Executing on remote database mail-dashboard-db:
 🚣 Executed 7 commands in 0.25ms
 ```
 
@@ -88,13 +88,13 @@ wrangler d1 execute justblurry-mail-db --remote --file=./schema.sql
 
 ```bash
 # Set default password: wanz2026
-wrangler d1 execute justblurry-mail-db --remote \
-  --command "UPDATE users SET password_hash = 'sha256:wanz2026' WHERE email = 'admin@justblurry.com'"
+wrangler d1 execute mail-dashboard-db --remote \
+  --command "UPDATE users SET password_hash = 'sha256:wanz2026' WHERE email = 'admin@yourdomain.com'"
 ```
 
 **Expected output:**
 ```
-🌀 Executing on remote database justblurry-mail-db:
+🌀 Executing on remote database mail-dashboard-db:
 🚣 Executed 1 command in 0.20ms
   changes: 1
 ```
@@ -108,9 +108,9 @@ wrangler deploy
 **Expected output:**
 ```
 Total Upload: 47.56 KiB / gzip: 8.64 KiB
-Uploaded justblurry-mail (5.36 sec)
-Deployed justblurry-mail triggers (2.45 sec)
-  https://justblurry-mail.wirasaputra3005.workers.dev
+Uploaded mail-dashboard (5.36 sec)
+Deployed mail-dashboard triggers (2.45 sec)
+  https://mail-dashboard.YOUR_SUBDOMAIN.workers.dev
 Current Version ID: 771fddd1-c13d-4688-bb96-2352667db456
 ```
 
@@ -120,11 +120,11 @@ Current Version ID: 771fddd1-c13d-4688-bb96-2352667db456
 
 Open browser and navigate to your worker URL:
 ```
-https://justblurry-mail.YOUR_SUBDOMAIN.workers.dev
+https://mail-dashboard.YOUR_SUBDOMAIN.workers.dev
 ```
 
 **Login credentials:**
-- Email: `admin@justblurry.com`
+- Email: `admin@yourdomain.com`
 - Password: `wanz2026`
 
 ---
@@ -152,7 +152,7 @@ chmod +x install-mailserver.sh
 
 **It will prompt:**
 ```
-Enter your Cloudflare Worker URL (e.g., https://justblurry-mail.YOUR_SUBDOMAIN.workers.dev):
+Enter your Cloudflare Worker URL (e.g., https://mail-dashboard.YOUR_SUBDOMAIN.workers.dev):
 ```
 
 Enter your worker URL and press Enter.
@@ -160,7 +160,7 @@ Enter your worker URL and press Enter.
 **Expected output:**
 ```
 ======================================
-Justblurry Mail - Mail Server Setup
+Mail Dashboard - Mail Server Setup
 ======================================
 
 📦 Installing dependencies...
@@ -174,7 +174,7 @@ Justblurry Mail - Mail Server Setup
 
 ```bash
 # Send test email
-echo "Test email body" | mail -s "Test Subject" test@justblurry.com
+echo "Test email body" | mail -s "Test Subject" test@yourdomain.com
 
 # Wait 2-3 seconds, then check logs
 tail -f /var/log/cloudmail-forwarder.log
@@ -182,7 +182,7 @@ tail -f /var/log/cloudmail-forwarder.log
 
 **Expected log:**
 ```
-[2026-06-03 18:45:12] ✓ Forwarded: Test Subject to test@justblurry.com
+[2026-06-03 18:45:12] ✓ Forwarded: Test Subject to test@yourdomain.com
 ```
 
 #### 5. Verify Email in Dashboard
@@ -211,11 +211,11 @@ tail -f /var/log/cloudmail-forwarder.log
 
 ### Configure DNS (Optional)
 
-If you want custom subdomain like `mail.justblurry.com`:
+If you want custom subdomain like `mail.yourdomain.com`:
 
 1. Go to Cloudflare Dashboard → Workers & Pages
 2. Click your worker → Settings → Triggers
-3. Add Custom Domain: `mail.justblurry.com`
+3. Add Custom Domain: `mail.yourdomain.com`
 4. Wait for DNS propagation (1-5 minutes)
 
 ### Setup Logrotate (Optional)
@@ -279,11 +279,11 @@ tail -50 /var/log/mail.log | grep justblurry
 
 **Check 2: Test webhook manually**
 ```bash
-curl -X POST https://justblurry-mail.YOUR_SUBDOMAIN.workers.dev/api/webhook \
+curl -X POST https://mail-dashboard.YOUR_SUBDOMAIN.workers.dev/api/webhook \
   -H "Content-Type: application/json" \
   -d '{
     "from": "test@example.com",
-    "to": "admin@justblurry.com",
+    "to": "admin@yourdomain.com",
     "subject": "Manual Test",
     "text_body": "Testing webhook",
     "date": "Tue, 03 Jun 2026 10:00:00 +0000",
@@ -293,7 +293,7 @@ curl -X POST https://justblurry-mail.YOUR_SUBDOMAIN.workers.dev/api/webhook \
 
 **Check 3: Verify database**
 ```bash
-wrangler d1 execute justblurry-mail-db --remote \
+wrangler d1 execute mail-dashboard-db --remote \
   --command "SELECT COUNT(*) FROM emails"
 ```
 
@@ -301,8 +301,8 @@ wrangler d1 execute justblurry-mail-db --remote \
 
 **Solution: Reset password**
 ```bash
-wrangler d1 execute justblurry-mail-db --remote \
-  --command "UPDATE users SET password_hash = 'sha256:wanz2026' WHERE email = 'admin@justblurry.com'"
+wrangler d1 execute mail-dashboard-db --remote \
+  --command "UPDATE users SET password_hash = 'sha256:wanz2026' WHERE email = 'admin@yourdomain.com'"
 ```
 
 ### Issue: Postfix not forwarding emails
@@ -317,7 +317,7 @@ cat /etc/postfix/transport
 **Should output:**
 ```
 transport_maps = hash:/etc/postfix/transport
-justblurry.com cloudmail:
+yourdomain.com cloudmail:
 ```
 
 **Rebuild and reload:**
@@ -333,28 +333,28 @@ postfix reload
 ### View All Emails
 
 ```bash
-wrangler d1 execute justblurry-mail-db --remote \
+wrangler d1 execute mail-dashboard-db --remote \
   --command "SELECT id, from_address, subject, is_read FROM emails ORDER BY received_at DESC LIMIT 20"
 ```
 
 ### Count Emails
 
 ```bash
-wrangler d1 execute justblurry-mail-db --remote \
+wrangler d1 execute mail-dashboard-db --remote \
   --command "SELECT COUNT(*) as total, SUM(CASE WHEN is_read = 0 THEN 1 ELSE 0 END) as unread FROM emails"
 ```
 
 ### Delete Old Emails (30+ days)
 
 ```bash
-wrangler d1 execute justblurry-mail-db --remote \
+wrangler d1 execute mail-dashboard-db --remote \
   --command "DELETE FROM emails WHERE received_at < strftime('%s', 'now', '-30 days')"
 ```
 
 ### Mark All as Read
 
 ```bash
-wrangler d1 execute justblurry-mail-db --remote \
+wrangler d1 execute mail-dashboard-db --remote \
   --command "UPDATE emails SET is_read = 1"
 ```
 
@@ -362,7 +362,7 @@ wrangler d1 execute justblurry-mail-db --remote \
 
 ```bash
 # Export to SQL
-wrangler d1 export justblurry-mail-db --remote --output=backup-$(date +%Y%m%d).sql
+wrangler d1 export mail-dashboard-db --remote --output=backup-$(date +%Y%m%d).sql
 ```
 
 ---
@@ -455,4 +455,4 @@ After successful installation:
 
 ---
 
-**Installation complete! Enjoy Justblurry Mail! 📧**
+**Installation complete! Enjoy Mail Dashboard! 📧**

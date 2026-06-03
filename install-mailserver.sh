@@ -1,11 +1,11 @@
 #!/bin/bash
-# Justblurry Mail - Mail Server Installation Script
-# Run this on your mail server (64.226.100.60 or your mail server IP)
+# Mail Dashboard - Mail Server Installation Script
+# Run this on your mail server as root
 
 set -e
 
 echo "======================================"
-echo "Justblurry Mail - Mail Server Setup"
+echo "Mail Dashboard - Mail Server Setup"
 echo "======================================"
 echo ""
 
@@ -16,7 +16,7 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 # Prompt for Worker URL
-read -p "Enter your Cloudflare Worker URL (e.g., https://justblurry-mail.YOUR_SUBDOMAIN.workers.dev): " WORKER_URL
+read -p "Enter your Cloudflare Worker URL (e.g., https://mail-dashboard.YOUR_SUBDOMAIN.workers.dev): " WORKER_URL
 
 if [ -z "$WORKER_URL" ]; then
   echo "❌ Worker URL is required"
@@ -108,24 +108,24 @@ cp /etc/postfix/main.cf /etc/postfix/main.cf.backup.$(date +%Y%m%d_%H%M%S)
 cp /etc/postfix/master.cf /etc/postfix/master.cf.backup.$(date +%Y%m%d_%H%M%S)
 
 # Create transport map
-echo "justblurry.com cloudmail:" > /etc/postfix/transport
+echo "yourdomain.com cloudmail:" > /etc/postfix/transport
 postmap /etc/postfix/transport
 
 # Configure Postfix main.cf
 postconf -e 'transport_maps = hash:/etc/postfix/transport'
 postconf -e 'cloudmail_destination_recipient_limit = 1'
 
-# Update mydestination (remove justblurry.com if present)
-postconf -e 'mydestination = $myhostname, mail.justblurry.com, localhost.com, localhost'
+# Update mydestination (remove yourdomain.com if present)
+postconf -e 'mydestination = $myhostname, mail.yourdomain.com, localhost.com, localhost'
 
-# Disable virtual alias for justblurry.com
-echo "# Virtual aliases disabled for Justblurry Mail" > /etc/postfix/virtual
+# Disable virtual alias for yourdomain.com
+echo "# Virtual aliases disabled for Mail Dashboard" > /etc/postfix/virtual
 postmap /etc/postfix/virtual
 
 # Check if cloudmail entry exists in master.cf
 if ! grep -q "^cloudmail unix" /etc/postfix/master.cf; then
   echo "" >> /etc/postfix/master.cf
-  echo "# Justblurry Mail forwarder" >> /etc/postfix/master.cf
+  echo "# Mail Dashboard forwarder" >> /etc/postfix/master.cf
   echo "cloudmail unix - n n - - pipe" >> /etc/postfix/master.cf
   echo "  flags=F user=nobody argv=/usr/local/bin/postfix_to_cloudmail.py" >> /etc/postfix/master.cf
 fi
@@ -146,7 +146,7 @@ echo "📧 Test Email Delivery"
 echo "======================================"
 echo ""
 echo "Send test email:"
-echo "  echo 'Test email body' | mail -s 'Test Subject' test@justblurry.com"
+echo "  echo 'Test email body' | mail -s 'Test Subject' test@yourdomain.com"
 echo ""
 echo "View logs:"
 echo "  tail -f /var/log/cloudmail-forwarder.log"
@@ -155,5 +155,5 @@ echo "Check Postfix logs:"
 echo "  tail -f /var/log/mail.log"
 echo ""
 echo "======================================"
-echo "🎉 Justblurry Mail is ready!"
+echo "🎉 Mail Dashboard is ready!"
 echo "======================================"
